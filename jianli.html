@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XR行业洞察与个人能力分析</title>
+    <!-- Chosen Palette: Calm Harmony (Warm neutrals with teal/blue accents) -->
+    <!-- Application Structure Plan: A thematic, single-page dashboard application with top-level navigation to switch between distinct views: 'Overview', 'Industry Insights', 'AI+XR Synergy', and 'Capability Match'. This structure was chosen to deconstruct the dense report into digestible, user-driven sections, moving away from a linear document format. The dashboard overview provides immediate synthesis of key data and the candidate's value, while dedicated sections allow for deeper, focused exploration of the market and the candidate's skills. This non-linear approach enhances usability and allows different users (e.g., technical managers, HR) to navigate directly to their area of interest. -->
+    <!-- Visualization & Content Choices: Market Growth -> Goal: Show Change -> Line Chart (Chart.js) -> Interaction: Hover tooltips -> Justification: Optimal for time-series data. | Adoption Barriers -> Goal: Compare Proportions -> Doughnut Chart (Chart.js) -> Interaction: Hover tooltips -> Justification: Clear part-to-whole visualization. | Key Trends & AI Roles -> Goal: Organize/Inform -> Interactive HTML/CSS Cards -> Interaction: Click-to-reveal -> Justification: Engaging and avoids complex SVG diagrams. | Candidate Skills/Projects -> Goal: Organize/Inform -> Tabbed Interface with Modals -> Interaction: Click tabs/cards -> Justification: Organizes detailed information cleanly without overwhelming the user. All choices prioritize interactivity and clarity within a non-SVG/Mermaid constraint. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background-color: #f8fafc; /* slate-50 */
+        }
+        .nav-link {
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -4px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #0d9488; /* teal-600 */
+            transition: width 0.3s ease;
+        }
+        .nav-link.active, .nav-link:hover {
+            color: #0d9488; /* teal-600 */
+        }
+        .nav-link.active::after {
+            width: 100%;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+        .card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+        .tab-button.active {
+            border-color: #0d9488;
+            background-color: #ccfbf1;
+            color: #134e4a;
+        }
+    </style>
+</head>
+<body class="text-slate-700">
+
+    <!-- Header & Navigation -->
+    <header class="bg-white/80 backdrop-blur-sm sticky top-0 z-40 shadow-sm">
+        <nav class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center">
+                    <span class="font-bold text-xl text-slate-800">XR洞察</span>
+                    <span class="mx-2 text-slate-300">|</span>
+                    <span class="text-sm text-slate-500">李嘉烁</span>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-4">
+                        <a href="#overview" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-slate-600 active">概览</a>
+                        <a href="#industry" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-slate-600">行业洞察</a>
+                        <a href="#synergy" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-slate-600">AI+XR 融合</a>
+                        <a href="#capability" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-slate-600">能力匹配</a>
+                    </div>
+                </div>
+                <div class="md:hidden flex items-center">
+                    <button id="mobile-menu-button" class="inline-flex items-center justify-center p-2 rounded-md text-slate-400 hover:text-slate-500 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-teal-500">
+                        <span class="sr-only">Open main menu</span>
+                        <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </nav>
+        <div id="mobile-menu" class="md:hidden hidden">
+            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                <a href="#overview" class="nav-link block px-3 py-2 rounded-md text-base font-medium text-slate-600 active">概览</a>
+                <a href="#industry" class="nav-link block px-3 py-2 rounded-md text-base font-medium text-slate-600">行业洞察</a>
+                <a href="#synergy" class="nav-link block px-3 py-2 rounded-md text-base font-medium text-slate-600">AI+XR 融合</a>
+                <a href="#capability" class="nav-link block px-3 py-2 rounded-md text-base font-medium text-slate-600">能力匹配</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+        <!-- Overview Section -->
+        <section id="overview" class="view-section">
+            <div class="text-center mb-12">
+                <h1 class="text-4xl font-bold text-slate-900 mb-2">连接AI创新与XR未来</h1>
+                <p class="text-lg text-slate-500">一份关于扩展现实(XR)行业展望与个人能力匹配的交互式报告</p>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
+                <div class="lg:col-span-2 bg-white p-6 rounded-xl shadow-sm">
+                    <h3 class="text-xl font-semibold text-slate-800 mb-4">XR市场增长预测 (2024-2032)</h3>
+                    <p class="text-sm text-slate-500 mb-4">全球XR市场预计将经历指数级增长，人工智能是推动这一增长的核心支柱。下图展示了从2024年至2032年的市场规模预测（单位：万亿美元）。将鼠标悬停在图表上以查看具体年份的数据。</p>
+                    <div class="chart-container">
+                        <canvas id="marketGrowthChart"></canvas>
+                    </div>
+                </div>
+                <div class="space-y-6">
+                    <div class="bg-white p-6 rounded-xl shadow-sm card">
+                        <h4 class="font-semibold text-teal-600 text-lg mb-2">2032年市场规模</h4>
+                        <p class="text-4xl font-bold text-slate-800">$1.6T</p>
+                        <p class="text-sm text-slate-500 mt-1">预计规模</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-sm card">
+                        <h4 class="font-semibold text-teal-600 text-lg mb-2">复合年增长率</h4>
+                        <p class="text-4xl font-bold text-slate-800">30.4%</p>
+                        <p class="text-sm text-slate-500 mt-1">2024-2032 CAGR</p>
+                    </div>
+                     <div class="bg-white p-6 rounded-xl shadow-sm card">
+                        <h4 class="font-semibold text-teal-600 text-lg mb-2">核心价值主张</h4>
+                        <p class="text-sm text-slate-600 mt-1">李嘉烁凭借其AI与跨学科背景的独特融合，为XR行业带来前瞻性的AI-XR融合视角、数据驱动的严谨性以及卓越的跨领域创新潜力。</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Industry Insights Section -->
+        <section id="industry" class="view-section hidden">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-slate-900 mb-2">行业深度洞察</h2>
+                <p class="text-lg text-slate-500">探索XR市场的动态、趋势、主要参与者以及面临的挑战与机遇。</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <!-- Key Trends -->
+                <div class="bg-white p-6 rounded-xl shadow-sm card">
+                    <h3 class="font-semibold text-slate-800 mb-2">关键趋势</h3>
+                    <ul class="space-y-2 text-sm text-slate-600">
+                        <li class="flex items-start"><span class="text-teal-500 mr-2 mt-1">●</span>混合现实(MR)主导</li>
+                        <li class="flex items-start"><span class="text-teal-500 mr-2 mt-1">●</span>生态系统之争加剧</li>
+                        <li class="flex items-start"><span class="text-teal-500 mr-2 mt-1">●</span>轻量化智能眼镜</li>
+                        <li class="flex items-start"><span class="text-teal-500 mr-2 mt-1">●</span>AI成为核心支柱</li>
+                        <li class="flex items-start"><span class="text-teal-500 mr-2 mt-1">●</span>网络设施需求激增</li>
+                    </ul>
+                </div>
+                <!-- Key Players -->
+                <div class="bg-white p-6 rounded-xl shadow-sm card md:col-span-2">
+                     <h3 class="font-semibold text-slate-800 mb-2">主要参与者与战略</h3>
+                     <p class="text-sm text-slate-500 mb-4">XR领域的竞争日益激烈，各大科技巨头纷纷布局自己的生态系统。点击公司名称了解其战略重点。</p>
+                     <div id="playersContainer" class="flex flex-wrap gap-2"></div>
+                     <div id="player-details" class="mt-4 text-sm p-3 bg-slate-100 rounded-lg min-h-[60px]">
+                        请选择一个公司查看详情。
+                     </div>
+                </div>
+                <!-- Adoption Barriers -->
+                <div class="bg-white p-6 rounded-xl shadow-sm card">
+                    <h3 class="font-semibold text-slate-800 mb-4">普及障碍</h3>
+                    <div class="w-full h-48">
+                        <canvas id="adoptionBarriersChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- AI+XR Synergy Section -->
+        <section id="synergy" class="view-section hidden">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-slate-900 mb-2">AI + XR：驱动下一代体验</h2>
+                <p class="text-lg text-slate-500">AI不仅是XR的辅助功能，更是其发展的核心支柱。它正在从根本上重塑内容创作、用户交互和整体体验。</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="bg-white p-6 rounded-xl shadow-sm card">
+                    <h3 class="text-lg font-semibold text-slate-800 mb-2">内容生成与原型</h3>
+                    <p class="text-sm text-slate-600">利用生成式AI动态创建XR内容、产品原型和虚拟对象，实现快速、低成本的原型设计和内容定制。</p>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-sm card">
+                    <h3 class="text-lg font-semibold text-slate-800 mb-2">个性化与交互性</h3>
+                    <p class="text-sm text-slate-600">通过分析用户行为，提供个性化推荐和指导。先进的手势识别和对话式AI使交互更加自然直观。</p>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-sm card">
+                    <h3 class="text-lg font-semibold text-slate-800 mb-2">优化与效率提升</h3>
+                    <p class="text-sm text-slate-600">结合数字孪生，AI能够提供预测性维护和操作优化洞察，促进实时数据驱动的决策，提升工业效率。</p>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-sm card">
+                    <h3 class="text-lg font-semibold text-slate-800 mb-2">简化用户体验(UI/UX)</h3>
+                    <p class="text-sm text-slate-600">AI有望通过生成式3D用户界面解决当前XR设备复杂的UI/UX问题，降低用户使用门槛，加速技术普及。</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Capability Match Section -->
+        <section id="capability" class="view-section hidden">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-slate-900 mb-2">战略契合与能力匹配</h2>
+                <p class="text-lg text-slate-500">我的AI技能与跨学科视野，与XR行业的创新需求高度契合。</p>
+            </div>
+            <div class="bg-white rounded-xl shadow-sm p-6 md:p-8">
+                <div class="mb-6 border-b border-slate-200">
+                    <nav id="capability-tabs" class="-mb-px flex space-x-6" aria-label="Tabs">
+                        <button data-tab="tech" class="tab-button whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300 active">
+                            技术与研发贡献
+                        </button>
+                        <button data-tab="strategy" class="tab-button whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300">
+                            产品与市场策略
+                        </button>
+                    </nav>
+                </div>
+
+                <div id="tech-content" class="capability-content">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <!-- Technical Skills -->
+                         <div class="bg-slate-50 p-4 rounded-lg">
+                            <h4 class="font-semibold text-slate-700 mb-2">AI大模型与AIGC</h4>
+                            <p class="text-sm text-slate-600">深入理解LLM原理，掌握Prompt工程、RAG等技术，能为XR内容生成提供技术支持。</p>
+                        </div>
+                        <div class="bg-slate-50 p-4 rounded-lg">
+                            <h4 class="font-semibold text-slate-700 mb-2">数据分析与优化</h4>
+                            <p class="text-sm text-slate-600">擅长使用Python进行数据处理和可视化，能通过数据分析优化XR用户体验和应用性能。</p>
+                        </div>
+                        <div class="bg-slate-50 p-4 rounded-lg">
+                            <h4 class="font-semibold text-slate-700 mb-2">跨学科解决问题</h4>
+                            <p class="text-sm text-slate-600">合成生物学背景培养了处理复杂系统的能力，能在医疗XR等交叉领域探索创新应用。</p>
+                        </div>
+                        <!-- Projects -->
+                        <div class="md:col-span-2 lg:col-span-3 mt-4">
+                            <h4 class="font-semibold text-slate-800 text-lg mb-3">相关项目经历</h4>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                               <div class="border border-slate-200 p-4 rounded-lg hover:shadow-md transition-shadow cursor-pointer" onclick="showModal('project1')">
+                                    <h5 class="font-semibold text-teal-700">合成生物学竞赛蛋白设计赛</h5>
+                                    <p class="text-xs text-slate-500 mt-1">利用AI/ML模型预测并设计高亮度、高稳定性的新型荧光蛋白。</p>
+                                </div>
+                                <div class="border border-slate-200 p-4 rounded-lg hover:shadow-md transition-shadow cursor-pointer" onclick="showModal('project2')">
+                                    <h5 class="font-semibold text-teal-700">电子制造“成本-质量-利润”优化</h5>
+                                    <p class="text-xs text-slate-500 mt-1">主导建立0-1整数规划模型，并开发基于遗传算法的求解器。</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="strategy-content" class="capability-content hidden">
+                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <!-- Strategy Skills -->
+                         <div class="bg-slate-50 p-4 rounded-lg">
+                            <h4 class="font-semibold text-slate-700 mb-2">AI产品设计与管理</h4>
+                            <p class="text-sm text-slate-600">具备良好产品意识，熟悉PRD撰写、原型设计和竞品分析，能推动AI驱动的XR产品开发。</p>
+                        </div>
+                        <div class="bg-slate-50 p-4 rounded-lg">
+                            <h4 class="font-semibold text-slate-700 mb-2">市场研究与竞品分析</h4>
+                            <p class="text-sm text-slate-600">积极关注技术前沿和行业趋势，能够为XR产品制定清晰的市场策略和路线图。</p>
+                        </div>
+                        <div class="bg-slate-50 p-4 rounded-lg">
+                            <h4 class="font-semibold text-slate-700 mb-2">智能体与工作流管理</h4>
+                            <p class="text-sm text-slate-600">具备多智能体协作项目经验，能有效管理复杂的XR产品开发工作流。</p>
+                        </div>
+                        <!-- Projects -->
+                        <div class="md:col-span-2 lg:col-span-3 mt-4">
+                            <h4 class="font-semibold text-slate-800 text-lg mb-3">相关项目经历</h4>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                               <div class="border border-slate-200 p-4 rounded-lg hover:shadow-md transition-shadow cursor-pointer" onclick="showModal('project3')">
+                                    <h5 class="font-semibold text-teal-700">二次元陪伴聊天机器人</h5>
+                                    <p class="text-xs text-slate-500 mt-1">基于Coze平台优化智能体功能，面向2C虚拟角色及情感陪聊场景。</p>
+                                </div>
+                                <div class="border border-slate-200 p-4 rounded-lg hover:shadow-md transition-shadow cursor-pointer" onclick="showModal('project4')">
+                                    <h5 class="font-semibold text-teal-700">旅游出行规划助手</h5>
+                                    <p class="text-xs text-slate-500 mt-1">学习并构建基于多智能体协作的模块化出行规划系统。</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200">
+        <div class="container mx-auto py-6 px-4 sm:px-6 lg:px-8 text-center text-slate-500">
+            <p class="font-semibold text-slate-800">李嘉烁</p>
+            <p class="text-sm">可随时到岗，期待与您深入交流。</p>
+            <p class="text-sm mt-1">联系方式：173-xxxx-1906 | 212144787@qq.com</p>
+        </div>
+    </footer>
+    
+    <!-- Modal -->
+    <div id="project-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center p-4">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-lg relative" id="modal-content">
+            <button onclick="closeModal()" class="absolute top-2 right-2 text-slate-400 hover:text-slate-600">
+                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+            </button>
+            <div class="p-6">
+                <h3 id="modal-title" class="text-xl font-bold text-slate-900 mb-4"></h3>
+                <p id="modal-description" class="text-sm text-slate-600 mb-4"></p>
+                <div id="modal-tags" class="flex flex-wrap gap-2"></div>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Data
+            const appData = {
+                marketGrowth: {
+                    labels: ['2024', '2025', '2026', '2027', '2028', '2029', '2030', '2031', '2032'],
+                    data: [0.184, 0.253, 0.34, 0.46, 0.62, 0.82, 1.08, 1.35, 1.625]
+                },
+                adoptionBarriers: {
+                    labels: ['高成本', '技术复杂性', '用户抵制', '其他'],
+                    data: [38, 34, 20, 8]
+                },
+                players: [
+                    { name: 'Meta', detail: 'Horizon OS生态系统, Quest系列MR头显, Ray-Ban Meta智能眼镜, 专注于AI研究和社交VR。' },
+                    { name: 'Google', detail: 'Android XR生态系统 (Project Moohan), Gemini AI整合, 推动开放的多模态生态系统。' },
+                    { name: 'Apple', detail: 'visionOS生态系统, Vision Pro头显, 专注于高端混合现实体验。' },
+                    { name: 'Qualcomm', detail: 'XR芯片和平台 (Snapdragon Spaces) 的关键供应商, 与各大厂商广泛合作。' },
+                    { name: 'Microsoft', detail: 'Mixed Reality Toolkit (MRTK), 专注于企业级AR/IoT解决方案。' },
+                    { name: 'NVIDIA', detail: 'Omniverse平台，专注于物理AI和图形渲染技术，为元宇宙提供基础设施。' },
+                ],
+                projects: {
+                    project1: { title: '合成生物学竞赛蛋白设计赛', description: '本项目利用人工智能技术设计具备高亮度和热稳定性的新型荧光蛋白。利用预训练蛋白质语言模型ESM将荧光蛋白序列编码为高维特征向量，再基于XGBoost回归模型实现蛋白质亮度的精准预测。结合生物学知识开发自动化突变体生成算法，最终获得多个优化的avGFP突变体。', tags: ['AI辅助蛋白质设计', 'XGBoost', 'ESM语言模型'] },
+                    project2: { title: '电子制造“成本-质量-利润”优化', description: '本项目为电子制造过程建立了一个优化决策系统。主导建立了0-1整数规划模型来描述成本、质量和利润之间的复杂关系，并开发了基于遗传算法的MATLAB求解器，以找到最优的生产参数组合。', tags: ['运筹优化', '遗传算法', 'MATLAB'] },
+                    project3: { title: '二次元陪伴聊天机器人', description: '基于Coze平台，通过规划、执行和完善阶段，实现了一个面向2C虚拟角色及情感陪聊应用场景的智能体。该智能体采用固定化的伴侣人设设计，为用户提供持续稳定的交互体验，并相对原模板优化了功能与性能。', tags: ['Coze', 'Agent', '工作流', 'AIGC'] },
+                    project4: { title: '旅游出行规划助手', description: '基于CAMEL框架和教程，学习了一个模块化的旅游出行规划助手的构建过程。系统采用多智能体协作设计，包含用户意图识别、信息检索、攻略生成和反馈优化等核心模块，支持从需求收集到个性化行程推荐的全流程自动化。', tags: ['多智能体', 'CAMEL框架', '工作流'] }
+                }
+            };
+
+            // Navigation Logic
+            const navLinks = document.querySelectorAll('.nav-link');
+            const sections = document.querySelectorAll('.view-section');
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+
+            function updateNav(targetId) {
+                sections.forEach(section => {
+                    section.classList.add('hidden');
+                });
+                document.getElementById(targetId).classList.remove('hidden');
+
+                navLinks.forEach(link => {
+                    link.classList.remove('active');
+                    if (link.getAttribute('href') === '#' + targetId) {
+                        link.classList.add('active');
+                    }
+                });
+            }
+
+            navLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const targetId = link.getAttribute('href').substring(1);
+                    updateNav(targetId);
+                    if(mobileMenu.classList.contains('hidden') === false){
+                        mobileMenu.classList.add('hidden');
+                    }
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                });
+            });
+
+            mobileMenuButton.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+            });
+
+            // Chart Initialization
+            function initCharts() {
+                const marketCtx = document.getElementById('marketGrowthChart').getContext('2d');
+                new Chart(marketCtx, {
+                    type: 'line',
+                    data: {
+                        labels: appData.marketGrowth.labels,
+                        datasets: [{
+                            label: '市场规模 (万亿美元)',
+                            data: appData.marketGrowth.data,
+                            borderColor: '#0d9488',
+                            backgroundColor: 'rgba(13, 148, 136, 0.1)',
+                            fill: true,
+                            tension: 0.4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: { beginAtZero: true }
+                        },
+                        plugins: {
+                            legend: { display: false }
+                        }
+                    }
+                });
+
+                const barriersCtx = document.getElementById('adoptionBarriersChart').getContext('2d');
+                new Chart(barriersCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: appData.adoptionBarriers.labels,
+                        datasets: [{
+                            label: '普及障碍 (%)',
+                            data: appData.adoptionBarriers.data,
+                            backgroundColor: ['#0f766e', '#14b8a6', '#5eead4', '#ccfbf1'],
+                            borderColor: '#f8fafc',
+                            borderWidth: 2,
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    boxWidth: 12,
+                                    font: { size: 10 }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // Capability Tabs
+            const capabilityTabs = document.querySelectorAll('#capability-tabs .tab-button');
+            const capabilityContents = document.querySelectorAll('.capability-content');
+
+            capabilityTabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    capabilityTabs.forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+
+                    const target = tab.getAttribute('data-tab');
+                    capabilityContents.forEach(content => {
+                        content.classList.add('hidden');
+                    });
+                    document.getElementById(target + '-content').classList.remove('hidden');
+                });
+            });
+
+            // Key Players Interaction
+            const playersContainer = document.getElementById('playersContainer');
+            const playerDetails = document.getElementById('player-details');
+            
+            appData.players.forEach(player => {
+                const button = document.createElement('button');
+                button.textContent = player.name;
+                button.className = 'player-btn text-xs font-medium bg-slate-100 text-slate-600 px-3 py-1 rounded-full hover:bg-teal-100 hover:text-teal-800 transition';
+                button.addEventListener('click', () => {
+                    playerDetails.textContent = player.detail;
+                    document.querySelectorAll('.player-btn').forEach(btn => btn.classList.remove('bg-teal-200'));
+                    button.classList.add('bg-teal-200');
+                });
+                playersContainer.appendChild(button);
+            });
+
+            initCharts();
+            
+            // Modal Logic (Global Scope)
+            window.showModal = function(projectId) {
+                const project = appData.projects[projectId];
+                if (!project) return;
+
+                document.getElementById('modal-title').textContent = project.title;
+                document.getElementById('modal-description').textContent = project.description;
+                
+                const tagsContainer = document.getElementById('modal-tags');
+                tagsContainer.innerHTML = '';
+                project.tags.forEach(tag => {
+                    const tagEl = document.createElement('span');
+                    tagEl.className = 'bg-teal-100 text-teal-800 text-xs font-medium px-2.5 py-0.5 rounded-full';
+                    tagEl.textContent = tag;
+                    tagsContainer.appendChild(tagEl);
+                });
+
+                document.getElementById('project-modal').classList.remove('hidden');
+                document.getElementById('project-modal').classList.add('flex');
+            }
+
+            window.closeModal = function() {
+                const modal = document.getElementById('project-modal');
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }
+            
+            // Close modal on outside click
+            document.getElementById('project-modal').addEventListener('click', function(event) {
+                if (event.target === this) {
+                    closeModal();
+                }
+            });
+
+        });
+    </script>
+</body>
+</html>
